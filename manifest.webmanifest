@@ -1,0 +1,30 @@
+{
+  "name": "우진의 대모험",
+  "short_name": "우진 RPG",
+  "description": "우진이 학교를 구하는 액션 RPG",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "portrait",
+  "background_color": "#16093a",
+  "theme_color": "#241552",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
