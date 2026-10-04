@@ -58,6 +58,9 @@ const wName=()=>U.pow<3?'나무 칼':U.pow<6?'불꽃 검':'레이저 세이버';
 const wCol=()=>U.pow<3?'#c58a4a':U.pow<6?'#ff7a1a':'#25e6ff';
 function initP(){P={x:W/2,y:AB-50,hp:120,max:120,fx:0,fy:-1,dir:1,cd:0,inv:0}}
 initP();
+const CHS=[{n:'우진',shirt:'#3b82f6',pants:'#1e3a8a',hair:'#2b1b0e',band:'#ef4444',skin:'#ffd7a8'},{n:'불꽃',shirt:'#ef4444',pants:'#7f1d1d',hair:'#6b2d0e',band:'#ffd23f',skin:'#ffd7a8'},{n:'닌자',shirt:'#22c55e',pants:'#14532d',hair:'#111',band:'#f8fafc',skin:'#f1c27d'},{n:'공주',shirt:'#ec4899',pants:'#831843',hair:'#f5d742',band:'#38bdf8',skin:'#ffe0c2'},{n:'번개',shirt:'#facc15',pants:'#854d0e',hair:'#1e293b',band:'#3b82f6',skin:'#e0ac69'}];
+let CH=CHS[0],FACE=null;
+try{const i=+localStorage.getItem('wj_ch');if(CHS[i])CH=CHS[i];const d=localStorage.getItem('wj_face');if(d){const im=new Image();im.onload=()=>{const k=document.createElement('canvas');k.width=k.height=16;k.getContext('2d').drawImage(im,0,0);FACE=k};im.src=d}}catch(e){}
 /* ---------- Input ---------- */
 let jx=0,jy=0,kx=0,ky=0,atkHeld=false,jid=null,ox=0,oy=0;
 const jz=$('jz'),jb=$('jb'),jk=$('jk'),ab=$('ab'),sb=$('sb');
@@ -80,7 +83,7 @@ function talk(lines,cb){let i=0;const f=()=>{if(i>=lines.length){hide();cb();ret
 const INTRO=[{e:'😈',n:'???',t:'으하하! 우리 학교는 이제 내 부하들이 접수했다!',r:1},{e:'🧒',n:'우진',t:'뭐라고?! 그렇겐 안 되지! 내 나무 칼이 가만 안 둘 거야!'},{e:'😈',n:'???',t:'10층까지 올라와 보시지~ 기다리고 있을게! 🍖',r:1},{e:'🧒',n:'우진',t:'좋아, 출동이다! 우진 히어로, 간다!!'}];
 const BOSSL=[{e:'😎',n:'친구1',t:'우진아, 여기까지 왔구나! 급식 마지막 돈까스는 내 거야!',r:1},{e:'🧒',n:'우진',t:'친구야...! 그건 안 돼! 오늘은 내가 먹을 거야!'},{e:'😎',n:'친구1',t:'그럼 승부다! 내 슈퍼 방귀 파워를 받아라~! 💨',r:1}];
 const ENDL=[{e:'😵',n:'친구1',t:'으아~ 내가 졌다... 돈까스는 반반 나눠 먹자.',r:1},{e:'🧒',n:'우진',t:'히히, 좋아! 같이 먹으면 더 맛있지! 🍱'}];
-function title(){st='title';show(`<div class="card"><div class="big">🧒⚔️</div><h1>우진의<br>대모험</h1><p>학교를 구하라!<br>10스테이지 액션 RPG</p><button id="go" style="font-size:1.3em">▶ 게임 시작</button><br><button id="help" style="margin-top:.6em;background:#7de3ff">📖 게임 방법</button></div>`);panel.onclick=e=>{if(e.target.closest('#help')){snd(660,.1);help();return}if(e.target.closest('#go')){snd(660,.1);newGame();hide();talk(INTRO,()=>{hide();startStage()})}}}
+function title(){st='title';show(`<div class="card"><div class="big">🧒⚔️</div><h1>우진의<br>대모험</h1><p>학교를 구하라!<br>10스테이지 액션 RPG</p><button id="go" style="font-size:1.3em">▶ 게임 시작</button><br><button id="help" style="margin-top:.6em;background:#7de3ff">📖 게임 방법</button> <button id="cu" style="margin-top:.6em;background:#ffb3de">🎨 캐릭터 변경</button></div>`);panel.onclick=e=>{if(e.target.closest('#help')){snd(660,.1);help();return}if(e.target.closest('#cu')){snd(660,.1);custom();return}if(e.target.closest('#go')){snd(660,.1);newGame();hide();talk(INTRO,()=>{hide();startStage()})}}}
 function help(){show(`<div class="card" style="text-align:left;font-size:.9em;line-height:1.45"><h2 style="text-align:center">📖 게임 방법</h2>
 <b>🎯 목표</b><br>학교를 점령한 적들을 물리치고 스테이지 10의 <b>친구1</b>을 이겨라!<br>
 <b>🕹️ 조작</b><br>• 왼쪽 아래 화면 터치 + 드래그 → 이동 (터치한 곳에 조이스틱 생성)<br>• ⚔️ 버튼 → 공격 (꾹 누르면 연속 공격, 가까운 적 자동 조준)<br>• ⚡ 버튼 → 번개 스킬 (상점에서 구매, 6초마다 사용)<br>
@@ -89,6 +92,23 @@ function help(){show(`<div class="card" style="text-align:left;font-size:.9em;li
 <b>👾 적 친구들</b><br>🟢 슬라임: 기본 · 🦇 박쥐: 빠르고 지그재그 · 🧙 마법사: 멀리서 탄 발사 · 🪨 골렘: 느리지만 튼튼<br>
 <b>💡 꿀팁</b><br>• 멈춰 서 있지 말고 계속 움직이세요!<br>• 마법사는 바짝 붙어야 잡기 쉬워요.<br>• 보스는 공격 전에 몸이 흔들려요 → 그때 피하기!<br>• 쓰러져도 업그레이드는 그대로, 다시 도전!<br>
 <div style="text-align:center;margin-top:.6em"><button id="back">◀ 돌아가기</button></div></div>`);panel.onclick=e=>{if(e.target.closest('#back'))title()}}
+function preview(){const g=$('pv').getContext('2d');g.clearRect(0,0,64,72);g.save();g.translate(32,42);g.scale(1.5,1.5);sprite(g);g.restore()}
+function custom(){show(`<div class="card"><h2>🎨 캐릭터 변경</h2><div style="display:flex;justify-content:center"><canvas id="pv" width="64" height="72" style="width:7em;height:8em;background:#fff8;border-radius:.6em;image-rendering:pixelated"></canvas></div>
+<div style="display:flex;flex-wrap:wrap;gap:.4em;justify-content:center;margin:.6em 0">${CHS.map((h,i)=>`<button data-i="${i}" style="background:${h.shirt};color:#fff;padding:.4em .7em">${h.n}</button>`).join('')}</div>
+<button id="cam" style="background:#7de3ff">📷 내 얼굴 찍기</button> <button id="nof">🙂 얼굴 지우기</button><br><button id="ok" style="margin-top:.7em;font-size:1.1em">✔ 완료</button></div>`);preview();
+panel.onclick=e=>{const b=e.target.closest('button');if(!b)return;snd(660,.06);
+if(b.dataset.i!==undefined){CH=CHS[+b.dataset.i];try{localStorage.setItem('wj_ch',b.dataset.i)}catch(x){}preview()}
+else if(b.id==='nof'){FACE=null;try{localStorage.removeItem('wj_face')}catch(x){}preview()}
+else if(b.id==='cam')camera();else if(b.id==='ok')title()}}
+function grab(src,w,h,mir){const m=Math.min(w,h),k=document.createElement('canvas');k.width=k.height=16;const g=k.getContext('2d');if(mir){g.translate(16,0);g.scale(-1,1)}g.drawImage(src,(w-m)/2,(h-m)/2,m,m,0,0,16,16);FACE=k;try{localStorage.setItem('wj_face',k.toDataURL())}catch(x){}}
+async function camera(){show(`<div class="card"><h2>📷 얼굴 촬영</h2><div style="width:12em;height:12em;margin:0 auto;border-radius:50%;overflow:hidden;border:.2em solid #2b1b4e;background:#000"><video id="vd" playsinline muted autoplay style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video></div>
+<p id="cm" style="margin:.5em">얼굴을 동그라미 안에 맞춰요!</p><button id="snap">📸 찰칵!</button> <button id="fl">📁 사진 선택</button> <button id="cx">취소</button><input id="fi" type="file" accept="image/*" capture="user" hidden></div>`);
+let stream;const stop=()=>{if(stream)stream.getTracks().forEach(k=>k.stop())};
+try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});$('vd').srcObject=stream}catch(x){$('cm').textContent='카메라를 켤 수 없어요. 📁 버튼으로 사진을 골라 주세요.'}
+panel.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+if(b.id==='snap'){const v=$('vd');if(!v.videoWidth)return;grab(v,v.videoWidth,v.videoHeight,true);S.coin();stop();custom()}
+else if(b.id==='fl')$('fi').click();else if(b.id==='cx'){stop();custom()}};
+$('fi').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{grab(im,im.width,im.height,false);stop();custom()};im.src=URL.createObjectURL(f)}}
 function newGame(){stage=1;gold=0;score=0;U.pow=U.skl=U.spd=U.crit=0;initP();sklCd=0}
 const costs=()=>({pow:20+U.pow*25,spd:20+U.spd*25,crit:25+U.crit*25,skl:U.skl?60+U.skl*50:70});
 function shop(note){const C=costs();const row=(k,n,d)=>`<div class="row"><div><b>${n}</b> Lv${U[k]}<br><small>${d}</small></div><button data-k="${k}" ${U[k]>=MX[k]?'disabled':''}>${U[k]>=MX[k]?'MAX':'🪙'+C[k]}</button></div>`;
@@ -162,11 +182,13 @@ if(B.mode==='dash'){B.mode='dashing';B.tx=dx/d;B.ty=dy/d;B.mt=.6}else{B.mode='id
 const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),w,h)};
 function txt(s,x,y,col='#fff',sz=14,al='left',st2='#000'){c.font=`900 ${sz}px system-ui,sans-serif`;c.textAlign=al;c.lineWidth=3;c.strokeStyle=st2;c.strokeText(s,x,y);c.fillStyle=col;c.fillText(s,x,y)}
 function shadow(x,y,w){c.fillStyle='#0003';c.beginPath();c.ellipse(x,y,w,w*.35,0,0,7);c.fill()}
+function sprite(g){const q=(x,y,w,h,k)=>{g.fillStyle=k;g.fillRect(x,y,w,h)};g.imageSmoothingEnabled=false;
+q(-8,-2,16,13,CH.shirt);q(-8,11,6,6,CH.pants);q(2,11,6,6,CH.pants);q(-9,16,8,3,'#fff');q(1,16,8,3,'#fff');q(8,0,4,6,CH.skin);
+if(FACE){g.drawImage(FACE,-11,-25,22,22);q(-11,-19,22,3,CH.band);q(-14,-18,4,3,CH.band)}
+else{q(-9,-19,18,16,CH.skin);q(-10,-23,20,8,CH.hair);q(-10,-18,4,7,CH.hair);q(-10,-15,20,3,CH.band);q(-12,-14,4,3,CH.band);q(2,-11,3,4,'#000');q(-4,-11,3,4,'#000');q(-2,-5,5,2,'#c0392b')}}
 function drawHero(){if(P.inv>0&&Math.floor(t*20)%2)return;const bob=moving?Math.sin(t*14)*2:Math.sin(t*4)*.6;shadow(P.x,P.y+18,12);
 c.save();c.translate(P.x,P.y+bob);c.scale(P.dir,1);
-R(-8,-2,16,13,'#3b82f6');R(-8,11,6,6,'#1e3a8a');R(2,11,6,6,'#1e3a8a');R(-9,16,8,3,'#fff');R(1,16,8,3,'#fff');
-R(-9,-19,18,16,'#ffd7a8');R(-10,-23,20,8,'#2b1b0e');R(-10,-18,4,7,'#2b1b0e');R(-10,-15,20,3,'#ef4444');R(-12,-14,4,3,'#ef4444');
-R(2,-11,3,4,'#000');R(-4,-11,3,4,'#000');R(-2,-5,5,2,'#c0392b');R(8,0,4,6,'#ffd7a8');c.restore();
+sprite(c);c.restore();
 const a=Math.atan2(P.fy,P.fx),col=wCol(),L=U.pow<3?26:U.pow<6?32:38;
 c.save();c.translate(P.x,P.y-2);c.rotate(a+(swing>0?(swing/.14-.5)*2.2:-.7));
 if(U.pow>=3){c.shadowColor=col;c.shadowBlur=10}
